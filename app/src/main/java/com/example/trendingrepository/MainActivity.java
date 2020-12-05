@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.trendingrepository.Utiles.CollectionFilter;
@@ -45,10 +47,14 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.repositorylist)
     RecyclerView repolistview;
-    @BindView(R.id.no_internet_layout)
-    LinearLayout no_internet_layout;
+    @BindView(R.id.no_internet)
+    TextView no_internet;
     @BindView(R.id.tryagain_btn)
     Button tryagain_btn;
+    @BindView(R.id.swipeControl)
+    SwipeRefreshLayout swipeRefreshLayout;
+
+   // public SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +64,20 @@ public class MainActivity extends AppCompatActivity {
         repolist = new ArrayList<>();
 
         if (isOnline()) {
-            no_internet_layout.setVisibility(View.INVISIBLE);
+            no_internet.setVisibility(View.INVISIBLE);
+            tryagain_btn.setVisibility(View.INVISIBLE);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    swipeRefreshLayout.setRefreshing(false);
+                    getRepositoryList();
+                }
+            });
             getRepositoryList();
         } else {
             try {
-                no_internet_layout.setVisibility(View.VISIBLE);
-                repolistview.setVisibility(View.INVISIBLE);
+                no_internet.setVisibility(View.VISIBLE);
+                tryagain_btn.setVisibility(View.VISIBLE);
                 tryagain_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -78,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
     public void getRepositoryList(){
 
         Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
@@ -174,4 +187,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
 }

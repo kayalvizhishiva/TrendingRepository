@@ -98,6 +98,4 @@ public class RepolistAdapter extends RecyclerView.Adapter<RepolistAdapter.Myview
             language_name.setText(repodetails.getLanguage());
         }
     }
-
-
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,35 +7,40 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipeControl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/repositorylist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dimen_4_sp">
     </androidx.recyclerview.widget.RecyclerView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <LinearLayout
-        android:id="@+id/no_internet_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_gravity="center">
-        <TextView
-            style="@style/no_internet"
-            android:text="@string/no_network_connection"
-            android:gravity="center"/>
-        <Button
-            android:id="@+id/tryagain_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/blue"
-            android:textSize="@dimen/dimen_12_sp"
-            android:text="try again"
-            android:textAllCaps="true"
-            android:layout_gravity="center"
-            android:background="@color/white"
-            android:layout_marginTop="@dimen/dimen_8_sp"/>
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/no_internet"
+        style="@style/no_internet"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/no_network_connection" />
 
-</LinearLayout>
+    <Button
+        android:id="@+id/tryagain_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/dimen_12_sp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="try again"
+        android:textAllCaps="true"
+        android:textColor="@color/blue"
+        android:textSize="@dimen/dimen_12_sp"
+        android:layout_below="@+id/no_internet"/>
+
+</RelativeLayout>
