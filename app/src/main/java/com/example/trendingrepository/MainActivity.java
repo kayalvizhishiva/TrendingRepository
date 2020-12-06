@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.trendingrepository.Utiles.CollectionFilter;
+import com.example.trendingrepository.Utiles.ProgressActivity;
 import com.example.trendingrepository.model.Repo;
 import com.google.gson.annotations.SerializedName;
 
@@ -39,7 +40,7 @@ import retrofit2.Response;
 
 import static com.example.trendingrepository.Utiles.CollectionFilter.filter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ProgressActivity {
 
     public RepolistAdapter repolistAdapter;
     public List<Repo> repolist;
@@ -70,7 +71,41 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onRefresh() {
                     swipeRefreshLayout.setRefreshing(false);
-                    getRepositoryList();
+                    if(isOnline()){
+                        repolistview.setVisibility(View.VISIBLE);
+                        getRepositoryList();
+                    }else {
+                        swipeRefreshLayout.setRefreshing(false);
+                        repolistview.setVisibility(View.INVISIBLE);
+                        no_internet.setVisibility(View.VISIBLE);
+                        tryagain_btn.setVisibility(View.VISIBLE);
+                        tryagain_btn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(isOnline()){
+                                    no_internet.setVisibility(View.INVISIBLE);
+                                    tryagain_btn.setVisibility(View.INVISIBLE);
+                                    Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
+                                    call.enqueue(new Callback<List<Repo>>() {
+                                        @Override
+                                        public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+                                            repolist = response.body();
+                                            InitListView(repolist);
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<List<Repo>> call, Throwable t) {
+                                            Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }else {
+                                    no_internet.setVisibility(View.VISIBLE);
+                                    tryagain_btn.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
+
                 }
             });
             getRepositoryList();
@@ -81,7 +116,26 @@ public class MainActivity extends AppCompatActivity {
                 tryagain_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if(isOnline()){
+                            no_internet.setVisibility(View.INVISIBLE);
+                            tryagain_btn.setVisibility(View.INVISIBLE);
+                            Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
+                            call.enqueue(new Callback<List<Repo>>() {
+                                @Override
+                                public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+                                    repolist = response.body();
+                                    InitListView(repolist);
+                                }
 
+                                @Override
+                                public void onFailure(Call<List<Repo>> call, Throwable t) {
+                                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }else {
+                            no_internet.setVisibility(View.VISIBLE);
+                            tryagain_btn.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
 
@@ -93,17 +147,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void getRepositoryList(){
-
+        showProgress("Loanding");
         Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
         call.enqueue(new Callback<List<Repo>>() {
             @Override
             public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
+                dismissProgress();
                 repolist = response.body();
                 InitListView(repolist);
             }
 
             @Override
             public void onFailure(Call<List<Repo>> call, Throwable t) {
+                dismissProgress();
                 Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
