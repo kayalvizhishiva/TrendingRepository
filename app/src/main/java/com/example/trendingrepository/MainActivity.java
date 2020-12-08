@@ -22,8 +22,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.trendingrepository.DB.DBManager;
+import com.example.trendingrepository.DB.DatabaseHelper;
 import com.example.trendingrepository.Utiles.CollectionFilter;
 import com.example.trendingrepository.Utiles.ProgressActivity;
+import com.example.trendingrepository.model.Builtby;
 import com.example.trendingrepository.model.Repo;
 import com.google.gson.annotations.SerializedName;
 
@@ -45,6 +48,7 @@ public class MainActivity extends ProgressActivity {
     public RepolistAdapter repolistAdapter;
     public List<Repo> repolist;
     public List<Repo> filterrepolist;
+    public DBManager dbManager;
 
     @BindView(R.id.repositorylist)
     RecyclerView repolistview;
@@ -63,6 +67,9 @@ public class MainActivity extends ProgressActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         repolist = new ArrayList<>();
+        DatabaseHelper.getInstance(this);
+        dbManager = new DBManager();
+//        create Objct for DB Manager
 
         if (isOnline()) {
             no_internet.setVisibility(View.INVISIBLE);
@@ -85,19 +92,9 @@ public class MainActivity extends ProgressActivity {
                                 if(isOnline()){
                                     no_internet.setVisibility(View.INVISIBLE);
                                     tryagain_btn.setVisibility(View.INVISIBLE);
-                                    Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
-                                    call.enqueue(new Callback<List<Repo>>() {
-                                        @Override
-                                        public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
-                                            repolist = response.body();
-                                            InitListView(repolist);
-                                        }
+                                    repolistview.setVisibility(View.VISIBLE);
+                                    getRepositoryList();
 
-                                        @Override
-                                        public void onFailure(Call<List<Repo>> call, Throwable t) {
-                                            Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
                                 }else {
                                     no_internet.setVisibility(View.VISIBLE);
                                     tryagain_btn.setVisibility(View.VISIBLE);
@@ -119,19 +116,8 @@ public class MainActivity extends ProgressActivity {
                         if(isOnline()){
                             no_internet.setVisibility(View.INVISIBLE);
                             tryagain_btn.setVisibility(View.INVISIBLE);
-                            Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
-                            call.enqueue(new Callback<List<Repo>>() {
-                                @Override
-                                public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
-                                    repolist = response.body();
-                                    InitListView(repolist);
-                                }
+                            getRepositoryList();
 
-                                @Override
-                                public void onFailure(Call<List<Repo>> call, Throwable t) {
-                                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
                         }else {
                             no_internet.setVisibility(View.VISIBLE);
                             tryagain_btn.setVisibility(View.VISIBLE);
@@ -143,17 +129,26 @@ public class MainActivity extends ProgressActivity {
 
             }
         }
-
-
     }
     public void getRepositoryList(){
-        showProgress("Loanding");
+        showProgress("Loading");
         Call<List<Repo>> call = ApiClient.getInstance().getMyApi().getrepo();
         call.enqueue(new Callback<List<Repo>>() {
             @Override
             public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
                 dismissProgress();
                 repolist = response.body();
+                dbManager.DeleteDBList();
+                    if(repolist!=null){
+                        for (Repo dbRepolist:repolist){
+                            int id = dbManager.create(dbRepolist);
+                            dbRepolist.setId(id);
+                            for(Builtby builtbylist : dbRepolist.getBuiltBy()){
+                                builtbylist.setRepoID(dbRepolist);
+                                dbManager.bulidbycreate(builtbylist);
+                            }
+                        }
+                    }
                 InitListView(repolist);
             }
 
