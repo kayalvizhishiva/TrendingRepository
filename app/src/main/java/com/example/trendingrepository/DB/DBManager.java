@@ -7,6 +7,7 @@ import com.j256.ormlite.support.DatabaseConnection;
 
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DBManager {
@@ -71,6 +72,26 @@ public class DBManager {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public List<Repo> getAllList() {
+        try {
+            List<Repo> getlist = repoDao.queryBuilder().query();
+            int i = 0;
+            for (Repo Itme: getlist) {
+
+                    ArrayList<Builtby> Detail = (ArrayList<Builtby>)builtbyDao.queryForEq(Builtby.COLUMN_RepositoryID,Itme);
+                    if(Detail != null)
+                        getlist.get(i).setBuiltBy(Detail);
+
+                i++;
+            }
+
+            return  getlist;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

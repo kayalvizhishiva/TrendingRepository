@@ -120,6 +120,9 @@ public class Repo {
         return builtBy;
     }
 
+    public void setBuiltBy(ArrayList<Builtby> builtBy) {
+        this.builtBy = builtBy;
+    }
 
     private String SearchValue;
 

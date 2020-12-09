@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import com.example.trendingrepository.model.Builtby;
 import com.example.trendingrepository.model.Repo;
 import com.google.gson.annotations.SerializedName;
 
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,8 +60,8 @@ public class MainActivity extends ProgressActivity {
     Button tryagain_btn;
     @BindView(R.id.swipeControl)
     SwipeRefreshLayout swipeRefreshLayout;
-
-   // public SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.no_result)
+    ImageView no_result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +71,12 @@ public class MainActivity extends ProgressActivity {
         repolist = new ArrayList<>();
         DatabaseHelper.getInstance(this);
         dbManager = new DBManager();
-//        create Objct for DB Manager
 
         if (isOnline()) {
             no_internet.setVisibility(View.INVISIBLE);
             tryagain_btn.setVisibility(View.INVISIBLE);
+            no_result.setVisibility(View.INVISIBLE);
+
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
@@ -86,18 +89,22 @@ public class MainActivity extends ProgressActivity {
                         repolistview.setVisibility(View.INVISIBLE);
                         no_internet.setVisibility(View.VISIBLE);
                         tryagain_btn.setVisibility(View.VISIBLE);
+                        no_result.setVisibility(View.INVISIBLE);
                         tryagain_btn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 if(isOnline()){
                                     no_internet.setVisibility(View.INVISIBLE);
                                     tryagain_btn.setVisibility(View.INVISIBLE);
+                                    no_result.setVisibility(View.INVISIBLE);
                                     repolistview.setVisibility(View.VISIBLE);
                                     getRepositoryList();
 
                                 }else {
                                     no_internet.setVisibility(View.VISIBLE);
                                     tryagain_btn.setVisibility(View.VISIBLE);
+                                    repolistview.setVisibility(View.INVISIBLE);
+                                    no_result.setVisibility(View.INVISIBLE);
                                 }
                             }
                         });
@@ -110,17 +117,23 @@ public class MainActivity extends ProgressActivity {
             try {
                 no_internet.setVisibility(View.VISIBLE);
                 tryagain_btn.setVisibility(View.VISIBLE);
+                no_result.setVisibility(View.INVISIBLE);
                 tryagain_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if(isOnline()){
                             no_internet.setVisibility(View.INVISIBLE);
                             tryagain_btn.setVisibility(View.INVISIBLE);
+                            no_result.setVisibility(View.INVISIBLE);
+                            repolistview.setVisibility(View.VISIBLE);
                             getRepositoryList();
 
                         }else {
                             no_internet.setVisibility(View.VISIBLE);
                             tryagain_btn.setVisibility(View.VISIBLE);
+                            repolistview.setVisibility(View.INVISIBLE);
+                            no_result.setVisibility(View.INVISIBLE);
+
                         }
                     }
                 });
@@ -149,6 +162,8 @@ public class MainActivity extends ProgressActivity {
                             }
                         }
                     }
+
+
                 InitListView(repolist);
             }
 
@@ -184,14 +199,18 @@ public class MainActivity extends ProgressActivity {
             }
             @Override
             public boolean onQueryTextChange(String s) {
+
                 String key = s.toUpperCase();
                 if(!TextUtils.isEmpty(s)) {
+                    no_result.setVisibility(View.INVISIBLE);
                     SearchRepository(key);
                 }
                 else {
+                    no_result.setVisibility(View.INVISIBLE);
                     filterrepolist = repolist;
                     InitListView(filterrepolist);
                 }
+
                 return false;
             }
         });
@@ -228,7 +247,7 @@ public class MainActivity extends ProgressActivity {
                     salemodelname.setSearchValue(searchValue);
                 }
             }else{
-                Toast.makeText(getApplicationContext(),"No Record",Toast.LENGTH_LONG).show();
+                no_result.setVisibility(View.VISIBLE);
                 repolistview.setVisibility(View.GONE);
             }
             repolistview.setVisibility(View.VISIBLE);

@@ -2,8 +2,8 @@
     <string name="app_name">TrendingRepository</string>
     <string name="search">Search</string>
     <string name="no_network_connection">No network Connection</string>
+    <string name="square">Square</string>
+    <string name="no_result">no result</string>
 
-    <style name="WhiteCursorSearchView" parent="Widget.AppCompat.SearchView">
-        <item name="colorControlActivated">#FFFFFF</item>
-    </style>
+
 </resources>
