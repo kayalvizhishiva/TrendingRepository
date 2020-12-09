@@ -22,7 +22,7 @@
                 <View
                     android:layout_width="2dp"
                     android:layout_height="95dp"
-                    android:background="@color/blue"
+                    android:background="@color/colorPrimary"
                     android:layout_gravity="center"/>
             </LinearLayout>
             <androidx.cardview.widget.CardView
